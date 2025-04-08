@@ -7,8 +7,6 @@ A new Task Manager Flutter project.
 To get this app, run this command in your terminal:
 
 ```bash
-git clone https://github.com/mostafejur21/task-manager-flutter.git 
-```
 
 ## Remember to run fvm command to get the flutter version 3.10.6
 
@@ -42,13 +40,5 @@ here are some problems
  ![Alt text](assets/screenshot/Screenshot_1691352036.png) | ![Alt text](assets/screenshot/Screenshot_1691352038.png)
  **_status change Buttom sheet_**                         | **_log out warning popup_**                              |
  ![Alt text](assets/screenshot/Screenshot_1691352046.png) | ![Alt text](assets/screenshot/Screenshot_1691352057.png)
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
-# Task_Manager_App
+ 
 # Task_Manager_App
