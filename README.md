@@ -29,16 +29,15 @@ here are some problems
 
  Auth                                                     | table                                                    |
 ----------------------------------------------------------|----------------------------------------------------------
- ![Alt text](assets/screenshot/Screenshot_1691352017.png) | ![Alt text](assets/screenshot/Screenshot_1691353385.png)
- ![Alt text](assets/screenshot/Screenshot_1691352061.png) | ![Alt text](assets/screenshot/Screenshot_1691352071.png)
- ![Alt text](assets/screenshot/Screenshot_1691352075.png) | ![Alt text](assets/screenshot/Screenshot_1691352080.png)
- ![Alt text](assets/screenshot/Screenshot_1691352086.png) | ![Alt text](assets/screenshot/Screenshot_1691352020.png)
+ ![Alt text](assets/screenshot/img1.jpeg) | ![Alt text](assets/screenshot/img2.jpeg)
+ ![Alt text](assets/screenshot/img3.jpeg) | ![Alt text](assets/screenshot/img4.jpeg)
+ ![Alt text](assets/screenshot/img5.png) | ![Alt text](assets/screenshot/img6.jpeg)
  🗈 **_New task screen_**                                 | 🗈 **_Add New task screen_**                             |
- ![Alt text](assets/screenshot/Screenshot_1691352022.png) | ![Alt text](assets/screenshot/Screenshot_1691352105.png)
+ ![Alt text](assets/screenshot/img7.jpeg) | ![Alt text](assets/screenshot/img8.jpeg)
  **_Update Profile screen_**                              | **_Complete task screen_**                               |
- ![Alt text](assets/screenshot/Screenshot_1691352028.png) | ![Alt text](assets/screenshot/Screenshot_1691352033.png)
- ![Alt text](assets/screenshot/Screenshot_1691352036.png) | ![Alt text](assets/screenshot/Screenshot_1691352038.png)
+ ![Alt text](assets/screenshot/img14.jpeg) | ![Alt text](assets/screenshot/img9.jpeg)
+ ![Alt text](assets/screenshot/img10.jpeg) | ![Alt text](assets/screenshot/img11.jpeg)
  **_status change Buttom sheet_**                         | **_log out warning popup_**                              |
- ![Alt text](assets/screenshot/Screenshot_1691352046.png) | ![Alt text](assets/screenshot/Screenshot_1691352057.png)
+ ![Alt text](assets/screenshot/img12.jpeg) | ![Alt text](assets/screenshot/img13.jpeg)
  
 # Task_Manager_App
