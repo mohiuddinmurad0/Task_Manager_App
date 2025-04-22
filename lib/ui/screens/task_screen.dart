@@ -12,6 +12,8 @@ import 'package:task_manager_flutter/ui/widgets/status_change_botom_sheet.dart';
 import 'package:task_manager_flutter/ui/widgets/summery_card.dart';
 import 'package:task_manager_flutter/ui/widgets/task_card.dart';
 import 'package:task_manager_flutter/ui/widgets/user_banners.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TaskScreen extends StatefulWidget {
   final String screenStatus;
@@ -36,7 +38,7 @@ class _TaskScreenState extends State<TaskScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      getTask();
+      fetchUserTasks();
       statusCount();
     });
   }
@@ -44,29 +46,72 @@ class _TaskScreenState extends State<TaskScreen> {
   TaskListModel _taskModel = TaskListModel();
   bool isLoading = false;
 
-  Future<void> getTask() async {
-    if (mounted) {
-      setState(() {
-        isLoading = true;
-      });
-    }
-    final NetworkResponse response =
-        await NetworkCaller().getRequest(widget.apiLink);
-    if (response.isSuccess) {
-      _taskModel = TaskListModel.fromJson(response.body!);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Failed to load data!"),
-          ),
-        );
+  Future<void> fetchUserTasks() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
       }
-    }
-    if (mounted) {
+
+      final tasksSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .where('status', isEqualTo: widget.screenStatus)
+          .get();
+
+      _taskModel.data = tasksSnapshot.docs.map((doc) {
+        final data = doc.data();
+        return TaskData(
+          sId: doc.id,
+          title: data['title'] ?? 'Unknown',
+          description: data['description'] ?? '',
+          createdDate: data['createdDate'] ?? '',
+          status: data['status'] ?? 'NEW',
+        );
+      }).toList();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tasks fetched successfully!")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to fetch tasks: ${e.toString()}")),
+      );
+    } finally {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> updateTaskStatus(String taskId, String newStatus) async {
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .doc(taskId)
+          .update({'status': newStatus});
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Task status updated successfully!")),
+      );
+
+      fetchUserTasks(); // Refresh tasks after updating status
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to update task status: ${e.toString()}")),
+      );
     }
   }
 
@@ -81,8 +126,7 @@ class _TaskScreenState extends State<TaskScreen> {
     if (mounted) {
       setState(() {});
     }
-    final NetworkResponse newTaskResponse =
-        await NetworkCaller().getRequest(ApiLinks.newTaskStatus);
+    final NetworkResponse newTaskResponse = await NetworkCaller().getRequest(ApiLinks.newTaskStatus);
     TaskListModel newTaskModel = TaskListModel.fromJson(newTaskResponse.body!);
 
     if (mounted) {
@@ -91,31 +135,25 @@ class _TaskScreenState extends State<TaskScreen> {
       });
     }
 
-    final cancelledTaskResponse =
-        await NetworkCaller().getRequest(ApiLinks.cancelledTaskStatus);
-    TaskListModel cancelledTaskModel =
-        TaskListModel.fromJson(cancelledTaskResponse.body!);
+    final cancelledTaskResponse = await NetworkCaller().getRequest(ApiLinks.cancelledTaskStatus);
+    TaskListModel cancelledTaskModel = TaskListModel.fromJson(cancelledTaskResponse.body!);
     if (mounted) {
       setState(() {
         count2 = cancelledTaskModel.data?.length ?? 0;
       });
     }
 
-    final completedTaskResponse =
-        await NetworkCaller().getRequest(ApiLinks.completedTaskStatus);
+    final completedTaskResponse = await NetworkCaller().getRequest(ApiLinks.completedTaskStatus);
 
-    TaskListModel completedTaskModel =
-        TaskListModel.fromJson(completedTaskResponse.body!);
+    TaskListModel completedTaskModel = TaskListModel.fromJson(completedTaskResponse.body!);
     if (mounted) {
       setState(() {
         count3 = completedTaskModel.data?.length ?? 0;
       });
     }
 
-    final inProgressResponse =
-        await NetworkCaller().getRequest(ApiLinks.inProgressTaskStatus);
-    TaskListModel inProgressTaskModel =
-        TaskListModel.fromJson(inProgressResponse.body!);
+    final inProgressResponse = await NetworkCaller().getRequest(ApiLinks.inProgressTaskStatus);
+    TaskListModel inProgressTaskModel = TaskListModel.fromJson(inProgressResponse.body!);
     if (mounted) {
       setState(() {
         count4 = inProgressTaskModel.data?.length ?? 0;
@@ -134,13 +172,11 @@ class _TaskScreenState extends State<TaskScreen> {
         isLoading = true;
       });
     }
-    final NetworkResponse response =
-        await NetworkCaller().getRequest(ApiLinks.deleteTask(taskId));
+    final NetworkResponse response = await NetworkCaller().getRequest(ApiLinks.deleteTask(taskId));
     if (response.isSuccess) {
       _taskModel.data!.removeWhere((element) => element.sId == taskId);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Task Deleted Successfully!")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Task Deleted Successfully!")));
       }
     }
     if (mounted) {
@@ -150,24 +186,13 @@ class _TaskScreenState extends State<TaskScreen> {
     }
   }
 
-  // int getCountForStatus(String status) {
-  //   final Data? statusData = statusCountModel.data?.firstWhere(
-  //     (data) => data.statusId == status,
-  //     orElse: () => Data(statusId: status, count: 0),
-  //   );
-  //   return statusData?.count ?? 0;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: userBanner(
         context,
         onTapped: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const UpdateProfileScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const UpdateProfileScreen()));
         },
       ),
       body: ScreenBackground(
@@ -215,7 +240,7 @@ class _TaskScreenState extends State<TaskScreen> {
                 padding: const EdgeInsets.all(8),
                 child: RefreshIndicator(
                     onRefresh: () async {
-                      getTask();
+                      fetchUserTasks();
                       statusCount();
                     },
                     child: Visibility(
@@ -227,17 +252,13 @@ class _TaskScreenState extends State<TaskScreen> {
                           itemCount: _taskModel.data?.length ?? 0,
                           itemBuilder: (context, int index) {
                             return CustomTaskCard(
-                                title:
-                                    _taskModel.data![index].title ?? "Unknown",
-                                description:
-                                    _taskModel.data![index].description ?? "",
-                                createdDate:
-                                    _taskModel.data![index].createdDate ?? "",
+                                title: _taskModel.data![index].title ?? "Unknown",
+                                description: _taskModel.data![index].description ?? "",
+                                createdDate: _taskModel.data![index].createdDate ?? "",
                                 status: _taskModel.data![index].status ?? "NEW",
                                 chipColor: _getChipColor(),
                                 onChangeStatusPressed: () {
-                                  statusUpdateButtomSheet(
-                                      _taskModel.data![index]);
+                                  statusUpdateButtomSheet(_taskModel.data![index]);
                                 },
                                 onEditPressed: () {},
                                 onDeletePressed: () {
@@ -254,8 +275,7 @@ class _TaskScreenState extends State<TaskScreen> {
         visible: widget.floatingActionButton == true,
         child: FloatingActionButton(
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const AddTaskScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTaskScreen()));
           },
           child: const Icon(Icons.add),
         ),
@@ -281,19 +301,15 @@ class _TaskScreenState extends State<TaskScreen> {
   void statusUpdateButtomSheet(TaskData task) {
     showModalBottomSheet(
       shape: ShapeBorder.lerp(
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Colors.black)),
-          RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-              side: const BorderSide(color: Colors.black)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.black)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: const BorderSide(color: Colors.black)),
           1)!,
       context: context,
       builder: (context) {
         return UpdateStatus(
           task: task,
           onTaskComplete: () {
-            getTask();
+            updateTaskStatus(task.sId!, "Completed");
           },
         );
       },
