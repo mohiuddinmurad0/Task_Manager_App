@@ -29,7 +29,7 @@ here are some problems
 
  Auth                                                     | table                                                    |
 ----------------------------------------------------------|----------------------------------------------------------
- ![Alt text](assets/screenshot/img1.jpeg) | ![Alt text](assets/screenshot/img2.jpeg)
+ ![Alt text](assets/screenshot/) | ![Alt text](assets/screenshot/img2.jpeg)
  ![Alt text](assets/screenshot/img3.jpeg) | ![Alt text](assets/screenshot/img4.jpeg)
  ![Alt text](assets/screenshot/img5.png) | ![Alt text](assets/screenshot/img6.jpeg)
  🗈 **_New task screen_**                                 | 🗈 **_Add New task screen_**                             |
