@@ -1,12 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager_flutter/data/models/network_response.dart';
-import 'package:task_manager_flutter/data/services/network_caller.dart';
-import 'package:task_manager_flutter/data/utils/api_links.dart';
-import 'package:task_manager_flutter/ui/screens/update_profile.dart';
 import 'package:task_manager_flutter/ui/widgets/custom_button.dart';
 import 'package:task_manager_flutter/ui/widgets/custom_text_form_field.dart';
 import 'package:task_manager_flutter/ui/widgets/screen_background.dart';
-import 'package:task_manager_flutter/ui/widgets/user_banners.dart';
 
 class AddTaskScreen extends StatefulWidget {
   const AddTaskScreen({super.key});
@@ -18,8 +15,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final TextEditingController _taskNameController = TextEditingController();
 
-  final TextEditingController _taskDescriptionController =
-      TextEditingController();
+  final TextEditingController _taskDescriptionController = TextEditingController();
   bool _addNewTaskLoading = false;
 
   Future<void> addNewTask() async {
@@ -27,34 +23,40 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (mounted) {
       setState(() {});
     }
-    Map<String, dynamic> requestBody = {
-      "title": _taskNameController.text.trim(),
-      "description": _taskDescriptionController.text.trim(),
-      "status": "New",
-    };
-    final NetworkResponse response =
-        await NetworkCaller().postRequest(ApiLinks.createTask, requestBody);
-    _addNewTaskLoading = false;
-    if (mounted) {
-      setState(() {});
-    }
-    if (response.isSuccess) {
+
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
+      }
+
+      final newTask = {
+        "title": _taskNameController.text.trim(),
+        "description": _taskDescriptionController.text.trim(),
+        "status": "New",
+        "createdDate": DateTime.now().toIso8601String(),
+      };
+
+      await FirebaseFirestore.instance.collection('users').doc(userId).collection('tasks').add(newTask);
+
       _taskNameController.clear();
       _taskDescriptionController.clear();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Task Added Successfully"),
-          ),
+          const SnackBar(content: Text("Task Added Successfully")),
         );
       }
-    } else {
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Task Added Failed"),
-          ),
+          SnackBar(content: Text("Failed to add task: ${e.toString()}")),
         );
+      }
+    } finally {
+      _addNewTaskLoading = false;
+      if (mounted) {
+        setState(() {});
       }
     }
   }
@@ -62,12 +64,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: userBanner(context, onTapped: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const UpdateProfileScreen()));
-      }),
+      appBar: AppBar(
+        title: const Text("Add Task"),
+      ),
       body: ScreenBackground(
           child: SingleChildScrollView(
         child: Column(
@@ -83,8 +82,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ),
                     const Text(
                       "Add Task",
-                      style:
-                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(
                       height: 16,

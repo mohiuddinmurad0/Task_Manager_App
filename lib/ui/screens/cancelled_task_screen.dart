@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:task_manager_flutter/data/utils/api_links.dart';
 import 'package:task_manager_flutter/ui/screens/task_screen.dart';
 
 class CancelledTaskScreen extends StatelessWidget {
@@ -8,8 +7,8 @@ class CancelledTaskScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TaskScreen(
-      apiLink: ApiLinks.cancelledTaskStatus,
       screenStatus: "Cancelled",
+      apiLink: '', // Not needed for Firestore
     );
   }
 }
