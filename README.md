@@ -27,17 +27,11 @@ here are some problems
 
 ## _Here are some screenshot of the app_
 
- Auth                                                     | table                                                    |
-----------------------------------------------------------|----------------------------------------------------------
- ![Alt text](assets/screenshot/img1.jpeg) | ![Alt text](assets/screenshot/img2.jpeg)
- ![Alt text](assets/screenshot/img3.jpeg) | ![Alt text](assets/screenshot/img4.jpeg)
- ![Alt text](assets/screenshot/img5.png) | ![Alt text](assets/screenshot/img6.jpeg)
- 🗈 **_New task screen_**                                 | 🗈 **_Add New task screen_**                             |
- ![Alt text](assets/screenshot/img7.jpeg) | ![Alt text](assets/screenshot/img8.jpeg)
- **_Update Profile screen_**                              | **_Complete task screen_**                               |
- ![Alt text](assets/screenshot/img14.jpeg) | ![Alt text](assets/screenshot/img9.jpeg)
- ![Alt text](assets/screenshot/img10.jpeg) | ![Alt text](assets/screenshot/img11.jpeg)
- **_status change Buttom sheet_**                         | **_log out warning popup_**                              |
- ![Alt text](assets/screenshot/img12.jpeg) | ![Alt text](assets/screenshot/img13.jpeg)
+ ![Alt text](assets/screenshot/1.jpg) | ![Alt text](assets/screenshot/2.jpg)
+ ![Alt text](assets/screenshot/3.jpg) | ![Alt text](assets/screenshot/4.jpg)
+ ![Alt text](assets/screenshot/5.jpg) | ![Alt text](assets/screenshot/6.jpg)                      
+ ![Alt text](assets/screenshot/7.jpg) | ![Alt text](assets/screenshot/8.jpg)                 
+ ![Alt text](assets/screenshot/9.jpg) | ![Alt text](assets/screenshot/10.jpg)
+ 
  
 # Task_Manager_App
