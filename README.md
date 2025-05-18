@@ -27,11 +27,11 @@ here are some problems
 
 ## _Here are some screenshot of the app_
 
- ![Alt text](assets/screenshot/1.jpg) | ![Alt text](assets/screenshot/2.jpg)
- ![Alt text](assets/screenshot/3.jpg) | ![Alt text](assets/screenshot/4.jpg)
- ![Alt text](assets/screenshot/5.jpg) | ![Alt text](assets/screenshot/6.jpg)                      
- ![Alt text](assets/screenshot/7.jpg) | ![Alt text](assets/screenshot/8.jpg)                 
- ![Alt text](assets/screenshot/9.jpg) | ![Alt text](assets/screenshot/10.jpg)
+ <img scr="assets/screenshot/1.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/2.jpg" weight="200px" height="200px" />
+ <img scr="assets/screenshot/3.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/4.jpg" weight="200px" height="200px" />
+ <img scr="assets/screenshot/5.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/6.jpg" weight="200px" height="200px" />                  
+<img scr="assets/screenshot/7.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/8.jpg" weight="200px" height="200px" />                 
+<img scr="assets/screenshot/9.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/10.jpg" weight="200px" height="200px" />
  
  
 # Task_Manager_App
