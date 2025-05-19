@@ -25,13 +25,5 @@ here are some problems
 - The Status count api is not working. *
   *_So i have to use different method to get the status count. and its working fine.__*
 
-## _Here are some screenshot of the app_
-
- <img scr="assets/screenshot/1.jpg" weight="500px" height="1000px" /> | <img scr="assets/screenshot/2.jpg" weight="500px" height="1000px" />
- <img scr="assets/screenshot/3.jpg" weight="500px" height="1000px" /> | <img scr="assets/screenshot/4.jpg" weight="500px" height="1000px" />
- <img scr="assets/screenshot/5.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/6.jpg" weight="200px" height="200px" />                  
-<img scr="assets/screenshot/7.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/8.jpg" weight="200px" height="200px" />                 
-<img scr="assets/screenshot/9.jpg" weight="200px" height="200px" /> | <img scr="assets/screenshot/10.jpg" weight="200px" height="200px" />
- 
  
 # Task_Manager_App
