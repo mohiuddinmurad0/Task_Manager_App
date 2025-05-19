@@ -1,10 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager_flutter/data/models/network_response.dart';
 import 'package:task_manager_flutter/data/models/summery_count_model.dart';
 import 'package:task_manager_flutter/data/models/task_model.dart';
-import 'package:task_manager_flutter/data/services/network_caller.dart';
-import 'package:task_manager_flutter/data/utils/api_links.dart';
 import 'package:task_manager_flutter/ui/screens/add_task_screen.dart';
 import 'package:task_manager_flutter/ui/screens/update_profile.dart';
 import 'package:task_manager_flutter/ui/widgets/screen_background.dart';
@@ -12,19 +11,15 @@ import 'package:task_manager_flutter/ui/widgets/status_change_botom_sheet.dart';
 import 'package:task_manager_flutter/ui/widgets/summery_card.dart';
 import 'package:task_manager_flutter/ui/widgets/task_card.dart';
 import 'package:task_manager_flutter/ui/widgets/user_banners.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class TaskScreen extends StatefulWidget {
   final String screenStatus;
-  final String apiLink;
   final bool showAllSummeryCard;
   final bool floatingActionButton;
 
   const TaskScreen({
     Key? key,
     required this.screenStatus,
-    required this.apiLink,
     this.showAllSummeryCard = false,
     this.floatingActionButton = true,
   }) : super(key: key);
@@ -70,22 +65,23 @@ class _TaskScreenState extends State<TaskScreen> {
           sId: doc.id,
           title: data['title'] ?? 'Unknown',
           description: data['description'] ?? '',
-          createdDate: data['createdDate'] ?? '',
+          // Ensure all String fields have null safety
+          createdDate: data['createdDate']?.toString() ?? '',
           status: data['status'] ?? 'NEW',
         );
       }).toList();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Tasks fetched successfully!")),
-      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to fetch tasks: ${e.toString()}")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch tasks: ${e.toString()}")),
+        );
+      }
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -126,43 +122,64 @@ class _TaskScreenState extends State<TaskScreen> {
     if (mounted) {
       setState(() {});
     }
-    final NetworkResponse newTaskResponse = await NetworkCaller().getRequest(ApiLinks.newTaskStatus);
-    TaskListModel newTaskModel = TaskListModel.fromJson(newTaskResponse.body!);
 
-    if (mounted) {
-      setState(() {
-        count1 = newTaskModel.data?.length ?? 0;
-      });
-    }
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
+      }
 
-    final cancelledTaskResponse = await NetworkCaller().getRequest(ApiLinks.cancelledTaskStatus);
-    TaskListModel cancelledTaskModel = TaskListModel.fromJson(cancelledTaskResponse.body!);
-    if (mounted) {
-      setState(() {
-        count2 = cancelledTaskModel.data?.length ?? 0;
-      });
-    }
+      // Count New tasks
+      final newTasksSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .where('status', isEqualTo: 'New')
+          .get();
 
-    final completedTaskResponse = await NetworkCaller().getRequest(ApiLinks.completedTaskStatus);
+      // Count Completed tasks
+      final completedTasksSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .where('status', isEqualTo: 'Completed')
+          .get();
 
-    TaskListModel completedTaskModel = TaskListModel.fromJson(completedTaskResponse.body!);
-    if (mounted) {
-      setState(() {
-        count3 = completedTaskModel.data?.length ?? 0;
-      });
-    }
+      // Count Cancelled tasks
+      final cancelledTasksSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .where('status', isEqualTo: 'Cancelled')
+          .get();
 
-    final inProgressResponse = await NetworkCaller().getRequest(ApiLinks.inProgressTaskStatus);
-    TaskListModel inProgressTaskModel = TaskListModel.fromJson(inProgressResponse.body!);
-    if (mounted) {
-      setState(() {
-        count4 = inProgressTaskModel.data?.length ?? 0;
-      });
-    }
+      // Count In Progress tasks
+      final progressTasksSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .where('status', isEqualTo: 'In Progress')
+          .get();
 
-    isLoading = false;
-    if (mounted) {
-      setState(() {});
+      if (mounted) {
+        setState(() {
+          count1 = newTasksSnapshot.docs.length;
+          count2 = cancelledTasksSnapshot.docs.length;
+          count3 = completedTasksSnapshot.docs.length;
+          count4 = progressTasksSnapshot.docs.length;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to count tasks: ${e.toString()}")),
+        );
+      }
+      isLoading = false;
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -172,17 +189,34 @@ class _TaskScreenState extends State<TaskScreen> {
         isLoading = true;
       });
     }
-    final NetworkResponse response = await NetworkCaller().getRequest(ApiLinks.deleteTask(taskId));
-    if (response.isSuccess) {
-      _taskModel.data!.removeWhere((element) => element.sId == taskId);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Task Deleted Successfully!")));
+
+    try {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
       }
-    }
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
+
+      await FirebaseFirestore.instance.collection('users').doc(userId).collection('tasks').doc(taskId).delete();
+
+      _taskModel.data!.removeWhere((element) => element.sId == taskId);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Task deleted successfully!")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to delete task: ${e.toString()}")),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
