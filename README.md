@@ -10,11 +10,6 @@ To get this app, run this command in your terminal:
 
 ## Remember to run fvm command to get the flutter version 3.10.6
 
-```bash
-fvm use 3.10.6
-flutter pub get
-```
-
 ## Problems
 
 here are some problems
